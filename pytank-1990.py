@@ -7,11 +7,11 @@ from pytank.game import *
 
 def run():
     sdl2.ext.init()
-    window = sdl2.ext.Window("PyTank 1990", size=(800, 600)) #, position=None, flags=sdl2.SDL_WINDOW_FULLSCREEN)
+    window = sdl2.ext.Window("PyTank 1990", size=(Game.WIDTH, Game.HEIGHT)) #, position=None, flags=sdl2.SDL_WINDOW_FULLSCREEN)
     window.show()
     running = True
     
-    game = Game()
+    game = Game(window)
     
     while running:
         events = sdl2.ext.get_events()
@@ -25,7 +25,7 @@ def run():
                     running = False
                     break
                     
-        game.run()
+        game.run(events)
         window.refresh()
     return 0
 
