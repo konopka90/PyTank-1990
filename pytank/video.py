@@ -1,4 +1,7 @@
 from sdl2 import *
+from sdl2.ext import *
+from sdl2.sdlimage import *
+from gameVars import *
 from ctypes import c_long, pointer
 
 class Video:
@@ -22,9 +25,9 @@ class Video:
         SDL_RenderCopy(self._renderer, self._buffer, None, None, 0, None, 0);
         SDL_RenderPresent(self._renderer); 
           
-    def clear(self, r = 0,g = 0 ,b = 0):
+    def clear(self, color = Color(0,0,0)):
         
-        SDL_SetRenderDrawColor(self._renderer,r,g,b, 255);
+        SDL_SetRenderDrawColor(self._renderer,color.r,color.g,color.b, 255);
         SDL_RenderClear(self._renderer);
         
     def drawRect(self,color,x,y,w,h):
@@ -59,7 +62,7 @@ class Video:
         SDL_SetRenderTarget(self._renderer, None);
         
     def loadTexture(self, path):
-        surface = SDL_LoadBMP(path);
+        surface = IMG_Load(path)
         texture = SDL_CreateTextureFromSurface(self._renderer, surface);
         return texture
 
