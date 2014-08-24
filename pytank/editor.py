@@ -94,7 +94,6 @@ class Editor:
             
         if self._state == self.STATE_EDIT:
         
-        
             # Draw rect
     
             RECT_WIDTH = Editor.RECT_WIDTH
@@ -131,5 +130,6 @@ class Editor:
                             self._cursorY = min(self._cursorY + 1, self.NUM_GRIDS_Y - 1)
                         if event.key.keysym.sym == GameVars.BUTTON_START:
                             self._state = self.STATE_SELECT_ACTION
+                            self._menuAction = self._menuAction + 1
                             
                         

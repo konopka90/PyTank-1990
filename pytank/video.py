@@ -78,7 +78,7 @@ class Video:
     
         SDL_SetRenderTarget(self._renderer, self._buffer);
         
-        dst = SDL_Rect(x, y, 10, 8)
+        dst = SDL_Rect(x, y, 9, 8)
         src = SDL_Rect(0,0,self.CHARACTER_WIDTH ,8)
         text = text.upper()
         counter = 0                        
@@ -96,7 +96,7 @@ class Video:
                 # Set source and destination                
                 # Fucking 9 pixels in first char d(-_-)b
                 src.x = 9 + diff * self.CHARACTER_WIDTH;
-                dst.x = x + counter*(self.CHARACTER_WIDTH + 2)
+                dst.x = x + counter*(self.CHARACTER_WIDTH + 1)
                 
                 if color == Colors.WHITE_ENUM:
                     SDL_RenderCopy(self._renderer, self._whiteFont, src, dst);
