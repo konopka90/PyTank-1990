@@ -1,5 +1,6 @@
 from sdl2 import *
 from sdl2.ext import *
+from sdl2.sdlmixer import *
 from video import *
 from editor import *
 from colors import *
@@ -12,10 +13,11 @@ class GameState(object):
     MENU = 3
     STAGE_SELECT_ANIMATION = 4
     STAGE_SELECT = 5
-    STAGE = 6
-    STAGE_SCORE = 7
-    PAUSE = 8
-    EDITOR = 9
+    STAGE_START = 6
+    STAGE = 7
+    STAGE_SCORE = 8
+    PAUSE = 9
+    EDITOR = 10
     
 
 
@@ -40,7 +42,8 @@ class Game:
         self._menuAction = 0
         self._editor = Editor(self._video)
         
-
+        # Assets
+        self._soundIntro = Mix_LoadMUS("pytank/data/intro.ogg")
         
         
     def run(self, events):
@@ -56,6 +59,7 @@ class Game:
             self._menuSelector = self._video.loadTexture('pytank/data/menu_selector.bmp')
             self._menuAnimationCounter = GameVars.HEIGHT
             self._gameState = GameState.MENU_ANIMATION
+            
   
         if(self._gameState == GameState.MENU_ANIMATION):
         
@@ -116,11 +120,20 @@ class Game:
             self._video.drawRect(Color(128,128,128), 0,GameVars.HEIGHT - self._selectStageAnimationCounter,GameVars.WIDTH,self._selectStageAnimationCounter)
             self._selectStageAnimationCounter = self._selectStageAnimationCounter + 3
             
-            if self._selectStageAnimationCounter > Game.WIDTH / 2:
+            if self._selectStageAnimationCounter > GameVars.WIDTH / 2:
                 self._gameState = GameState.STAGE_SELECT
          
         if(self._gameState == GameState.STAGE_SELECT):
-            self._video.clear(Colors.GRAY)
+            self._video.clear(Colors.BLACK)
+            self._gameState = GameState.STAGE_START
+            
+        if(self._gameState == GameState.STAGE_START):
+            if Mix_PlayMusic(self._soundIntro, 0) == -1:
+                print(Mix_GetError())
+            self._gameState = GameState.STAGE
+        
+        if(self._gameState == GameState.STAGE):
+            pass
             
          
         self._video.renderStop()

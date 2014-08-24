@@ -13,7 +13,19 @@ class Editor:
         
     def __init__(self,video):
         self._video = video
+        
+        # Assets        
+        
         self._cursor = video.loadTexture("pytank/data/cursor.png")
+        self._bush = video.loadTexture("pytank/data/bush.png")
+        self._eagle = video.loadTexture("pytank/data/eagle.png")
+        self._brick = video.loadTexture("pytank/data/brick.png")
+        self._fast = video.loadTexture("pytank/data/fast.png")
+        self._water = video.loadTexture("pytank/data/water.png")
+        self._metal_brick = video.loadTexture("pytank/data/metal_brick.png")
+        
+        # Variables        
+        
         self._cursorCounter = 0
         self._drawCursor = True
         self._cursorX = 0
