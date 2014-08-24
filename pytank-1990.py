@@ -21,7 +21,6 @@ def run():
     
     window = sdl2.ext.Window(GameVars.TITLE, size=(GameVars.WIDTH, GameVars.HEIGHT), flags=sdl2.SDL_WINDOW_RESIZABLE)# | sdl2.SDL_WINDOW_FULLSCREEN) # <-- doesnt work properly :/ 
     window.show()
-
     
     # Run game
     

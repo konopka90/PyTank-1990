@@ -6,3 +6,6 @@ class Colors:
     WHITE = Color(255,255,255)
     BLACK = Color(0,0,0)
     GRAY = Color(128,128,128)
+    
+    WHITE_ENUM = 1
+    BLACK_ENUM = 2

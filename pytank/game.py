@@ -83,6 +83,8 @@ class Game:
             if(self._gameState == GameState.MENU):
                 self._menuSelectorCounter = self._menuSelectorCounter + 1
                 self._video.render(self._menuTexture,0,0)
+                self._video.renderText("00",Colors.WHITE_ENUM,60,24)
+                self._video.renderText("20000",Colors.WHITE_ENUM,130,24)
                 
                 
                 for event in events:				
@@ -103,12 +105,12 @@ class Game:
                 
                 self._video.render(self._menuSelector,65,133 + y,SDL_Rect(x,0,13,13))
             
-        # Show Editor
-            
-        if(self._gameState == GameState.EDITOR):
-            finished = self._editor.run(events)
-            if finished:
-                self._gameState = GameState.MENU
+            # Show Editor
+            else:
+                if(self._gameState == GameState.EDITOR):
+                    finished = self._editor.run(events)
+                    if finished:
+                        self._gameState = GameState.MENU
                 
         
         
