@@ -6,11 +6,22 @@ from pytank.game import *
 # Main loop
 
 def run():
-    sdl2.ext.init()
-    window = sdl2.ext.Window("PyTank 1990", size=(Game.WIDTH, Game.HEIGHT)) #, position=None, flags=sdl2.SDL_WINDOW_FULLSCREEN)
-    window.show()
-    running = True
     
+    sdl2.ext.init()
+    window = sdl2.ext.Window(Game.TITLE, size=(Game.WIDTH, Game.HEIGHT), flags=sdl2.SDL_WINDOW_RESIZABLE)# | sdl2.SDL_WINDOW_FULLSCREEN) # <-- doesnt work properly :/ 
+    window.show()
+    
+    # Set display mode (doesnt work :<)
+    
+    mode = sdl2.SDL_DisplayMode()
+    sdl2.SDL_GetDisplayMode(0,0,mode)
+    mode.w = Game.WIDTH
+    mode.h = Game.HEIGHT
+    sdl2.SDL_SetWindowDisplayMode(window.window, mode)
+    
+    # Run game
+    
+    running = True
     game = Game(window)
     
     while running:
@@ -26,7 +37,6 @@ def run():
                     break
                     
         game.run(events)
-        window.refresh()
     return 0
 
 if __name__ == "__main__":
