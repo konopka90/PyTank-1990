@@ -1,0 +1,18 @@
+class EditorElement:
+
+    EMPTY = 0
+    HALF_BRICK_LEFT = 1
+    HALF_BRICK_TOP = 2
+    HALF_BRICK_RIGHT = 3
+    HALF_BRICK_BOTTOM = 4
+    BRICK = 5
+    HALF_METAL_LEFT = 6
+    HALF_METAL_TOP = 7
+    HALF_METAL_RIGHT = 8
+    HALF_METAL_BOTTOM = 9
+    METAL = 10
+    WATER = 11
+    BUSH = 12
+    FAST = 13
+
+    COUNT = 14

@@ -44,9 +44,11 @@ class Video:
         
     def drawRect(self,color,x,y,w,h):
     
+        SDL_SetRenderTarget(self._renderer, self._buffer);
         r = SDL_Rect(x, y, w, h) 
         SDL_SetRenderDrawColor(self._renderer, color.r,color.g, color.b,255) 
         SDL_RenderFillRect(self._renderer, r) 
+        SDL_SetRenderTarget(self._renderer, None);
         
     def render(self, texture, x, y, src = SDL_Rect(-1,-1,-1,-1)):
     
@@ -82,13 +84,14 @@ class Video:
         src = SDL_Rect(0,0,self.CHARACTER_WIDTH ,8)
         text = text.upper()
         counter = 0                        
-                
+               
+        doNotRender = False
                 
         for c in text:
             if str(c).isalpha():
                 
                 # Do math                
-                
+               
                 ref = ord('A')
                 current = ord(c)
                 diff = current - ref
@@ -103,32 +106,42 @@ class Video:
                 else:
                     SDL_RenderCopy(self._renderer, self._blackFont, src, dst);
                     
-                
-                pass
-            else:
-                if str(c).isdigit():
+            elif str(c).isdigit():
                     ref = ord('0')
                     current = ord(c)
                     diff = current - ref
                     
                     src.x = diff * self.CHARACTER_WIDTH;
-                    dst.x = x + counter*(self.CHARACTER_WIDTH + 2)
+                    dst.x = x + counter*(self.CHARACTER_WIDTH) + 4
                     
                     if color == Colors.WHITE_ENUM:
                         SDL_RenderCopy(self._renderer, self._whiteDigits, src, dst);
                     else:
                         SDL_RenderCopy(self._renderer, self._blackDigits, src, dst);
                     
+            else:
+                if c == ' ':
                     pass
-                else:
-                    
-                    if c == ' ':
-                        pass
-                    
-                    pass
-                
+                if c == '_':
+                    diff = 28
+                    src.x = diff * self.CHARACTER_WIDTH;
+                    dst.x = x + counter*(self.CHARACTER_WIDTH + 2)
+                if c == '.':
+                    doNotRender = True
+                if c == '>':
+                    diff = 29
+                    src.x = diff * self.CHARACTER_WIDTH;
+                    dst.x = x + counter*(self.CHARACTER_WIDTH + 2)
+                  
+                if not doNotRender:
+                    if color == Colors.WHITE_ENUM:
+                        SDL_RenderCopy(self._renderer, self._whiteFont, src, dst);
+                    else:
+                        SDL_RenderCopy(self._renderer, self._blackFont, src, dst);                    
+
+
             counter = counter + 1
-            pass
+            
         
         
         SDL_SetRenderTarget(self._renderer, None);

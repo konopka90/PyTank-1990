@@ -17,3 +17,4 @@ class GameVars:
     BUTTON_START = SDLK_RETURN
     BUTTON_SELECT = SDLK_s
     BUTTON_A = SDLK_a
+    BUTTON_B = SDLK_z

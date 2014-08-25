@@ -5,6 +5,7 @@ from video import *
 from editor import *
 from colors import *
 import gameVars
+import myInput
 
 class GameState(object):
     
@@ -86,18 +87,15 @@ class Game:
                 self._video.renderText("00",Colors.WHITE_ENUM,60,24)
                 self._video.renderText("20000",Colors.WHITE_ENUM,130,24)
                 
-                
-                for event in events:				
-                    if event.type == SDL_KEYDOWN:
-                        if event.key.keysym.sym == GameVars.BUTTON_SELECT:
-                            self._menuAction = (self._menuAction + 1) % 3
-                        if event.key.keysym.sym == GameVars.BUTTON_A:
-                            if self._menuAction < 2:                            
-                                self._gameState = GameState.STAGE_SELECT_ANIMATION
-                                self._selectStageAnimationCounter = 0
-                            if self._menuAction == 2:
-                                self._gameState = GameState.EDITOR
-                            break
+                if myInput.isKeyDown(events, GameVars.BUTTON_SELECT):
+                    self._menuAction = (self._menuAction + 1) % 3
+                if myInput.isKeyDown(events, GameVars.BUTTON_A):
+                    if self._menuAction < 2:                            
+                        self._gameState = GameState.STAGE_SELECT_ANIMATION
+                        self._selectStageAnimationCounter = 0
+                    if self._menuAction == 2:
+                        self._gameState = GameState.EDITOR
+                    
                 
                 x = self._menuSelectorArray[self._menuSelectorCounter % 2]
                 y = self._menuSelectorHeight[self._menuAction]
