@@ -6,6 +6,7 @@ from editor import *
 from colors import *
 import gameVars
 import myInput
+from show_levels import *
 
 class GameState(object):
     
@@ -14,11 +15,12 @@ class GameState(object):
     MENU = 3
     STAGE_SELECT_ANIMATION = 4
     STAGE_SELECT = 5
-    STAGE_START = 6
-    STAGE = 7
-    STAGE_SCORE = 8
-    PAUSE = 9
-    EDITOR = 10
+    STAGE_SELECT_FINISH = 6
+    STAGE_START = 7
+    STAGE = 8
+    STAGE_SCORE = 9
+    PAUSE = 10
+    EDITOR = 11
     
 
 
@@ -33,7 +35,8 @@ class Game:
         
         self._surface = window.get_surface()
         self._video = Video(window, GameVars.WIDTH, GameVars.HEIGHT)
-                
+        self._showLevels = ShowLevels()        
+        self._stageAnimationCounter = 0
         # Game stuff
         
         self._gameState = GameState.MENU_ANIMATION_START
@@ -42,6 +45,7 @@ class Game:
         self._menuSelectorHeight = [ 0 , 16 , 32]
         self._menuAction = 0
         self._editor = Editor(self._video)
+        self._level = Level()
         
         # Assets
         self._soundIntro = Mix_LoadMUS("pytank/data/intro.ogg")
@@ -119,17 +123,31 @@ class Game:
             self._video.drawRect(Color(128,128,128), 0,0,GameVars.WIDTH,self._selectStageAnimationCounter)
             self._video.drawRect(Color(128,128,128), 0,GameVars.HEIGHT - self._selectStageAnimationCounter,GameVars.WIDTH,self._selectStageAnimationCounter)
             self._selectStageAnimationCounter = self._selectStageAnimationCounter + 3
-            
+
             if self._selectStageAnimationCounter > GameVars.WIDTH / 2:
                 self._gameState = GameState.STAGE_SELECT
          
-        if(self._gameState == GameState.STAGE_SELECT):
+        # Show 'stage selection'         
+        elif(self._gameState == GameState.STAGE_SELECT):
             self._video.clear(Colors.BLACK)
-            self._gameState = GameState.STAGE_START
+            result = self._showLevels.run(events, self._video)
+            
+            if result.OK:
+                self._selectStageAnimationCounter = 0
+                self._level.load(result.letter, result.number)
+                if Mix_PlayMusic(self._soundIntro, 0) == -1:
+                    print(Mix_GetError())
+                self._gameState = GameState.STAGE_SELECT_FINISH
+        
+        # Show for N seconds 'stage selection' 
+        if(self._gameState == GameState.STAGE_SELECT_FINISH):
+            self._showLevels.run(events, self._video)
+            if self._selectStageAnimationCounter > 150:
+                self._gameState = GameState.STAGE_START
+            else:
+                self._selectStageAnimationCounter = self._selectStageAnimationCounter + 1
             
         if(self._gameState == GameState.STAGE_START):
-            if Mix_PlayMusic(self._soundIntro, 0) == -1:
-                print(Mix_GetError())
             self._gameState = GameState.STAGE
         
         if(self._gameState == GameState.STAGE):

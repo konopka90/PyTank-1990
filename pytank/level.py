@@ -1,4 +1,6 @@
 from editor_element import *
+from gameVars import *
+from colors import *
 
 class BlockType:
     EMPTY = 0
@@ -24,10 +26,22 @@ class Level:
     _sizeX = 0
     _sizeY = 0
     
-    def __init__(self):
-        self.__init__(self.DEFAULT_SIZE_X, self.DEFAULT_SIZE_Y)
+            
+        
+
     
-    def __init__(self, sizeX, sizeY):
+    def __init__(self, sizeX = DEFAULT_SIZE_X, sizeY = DEFAULT_SIZE_Y, renderer = None):
+        
+        self._renderer = renderer
+        
+        if renderer:
+            self._bush = renderer.loadTexture("pytank/data/bush.png")
+            self._eagle = renderer.loadTexture("pytank/data/eagle.png")
+            self._brick = renderer.loadTexture("pytank/data/brick.png")
+            self._fast = renderer.loadTexture("pytank/data/fast.png")
+            self._water = renderer.loadTexture("pytank/data/water.png")
+            self._metal = renderer.loadTexture("pytank/data/metal_brick.png")
+        
         self._sizeX = sizeX
         self._sizeY = sizeY
         self.matrix = [] 
@@ -37,7 +51,6 @@ class Level:
             for j in range (0, sizeX):            
                 new.append(BlockType.EMPTY)             
             self.matrix.append(new) 
-            
             
         # Initial bricks
             
@@ -60,6 +73,49 @@ class Level:
         self.matrix[sizeY-1][x + 1] = BlockType.EAGLE
         self.matrix[sizeY-1][x] = BlockType.EAGLE
         
+    def render(self):
+          
+        renderer = self._renderer
+        # Draw frame
+
+        FRAME_WIDTH = GameVars.FRAME_WIDTH
+        
+        renderer.drawRect(Colors.GRAY,0,0,FRAME_WIDTH,GameVars.HEIGHT)     
+        renderer.drawRect(Colors.GRAY,GameVars.WIDTH - FRAME_WIDTH - 16,0,FRAME_WIDTH * 2,GameVars.HEIGHT)     
+        renderer.drawRect(Colors.GRAY,0,0,GameVars.WIDTH,FRAME_WIDTH)     
+        renderer.drawRect(Colors.GRAY,0,GameVars.HEIGHT - FRAME_WIDTH,GameVars.WIDTH,FRAME_WIDTH)
+
+        # Draw level items
+
+        level = self.matrix
+        currentY = FRAME_WIDTH
+        for y in range(0,GameVars.NUM_GRID_Y):
+            currentX = FRAME_WIDTH
+            for x in range(0,GameVars.NUM_GRID_X):
+                ###### Check x,y or y,x
+                item = level[y][x]
+                self._renderBlock(item, currentX, currentY) 
+                    
+                currentX = currentX + GameVars.LEVEL_GRID_WIDTH
+                     
+            currentY = currentY + GameVars.LEVEL_GRID_WIDTH
+    
+    def _renderBlock(self, item, x, y):
+        
+        renderer = self._renderer
+        
+        if item == BlockType.WATER:
+            renderer.render(self._water, x, y)
+        elif item == BlockType.FAST:
+            renderer.render(self._fast, x, y)
+        elif item == BlockType.BUSH:
+            renderer.render(self._bush, x, y)
+        elif item == BlockType.BRICK:
+            renderer.render(self._brick, x, y)
+        elif item == BlockType.METAL:
+            renderer.render(self._metal, x, y)
+        elif item == BlockType.EAGLE_RENDER:
+            renderer.render(self._eagle, x, y) 
             
     # Takes EditorElement
     def getBlockMatrix(self, element):

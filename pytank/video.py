@@ -112,7 +112,7 @@ class Video:
                     diff = current - ref
                     
                     src.x = diff * self.CHARACTER_WIDTH;
-                    dst.x = x + counter*(self.CHARACTER_WIDTH) + 4
+                    dst.x = x + counter*(self.CHARACTER_WIDTH) + 6
                     
                     if color == Colors.WHITE_ENUM:
                         SDL_RenderCopy(self._renderer, self._whiteDigits, src, dst);
