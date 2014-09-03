@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from video import *
 from colors import *
-import gameVars
+import gamevars
 import myInput
 import os, os.path
 

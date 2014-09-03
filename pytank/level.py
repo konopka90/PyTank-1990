@@ -1,16 +1,8 @@
 from editor_element import *
-from gameVars import *
+from gamevars import *
 from colors import *
-
-class BlockType:
-    EMPTY = 0
-    WATER = 1
-    FAST = 2
-    BUSH = 3
-    BRICK = 4
-    METAL = 5
-    EAGLE = 6
-    EAGLE_RENDER = 7
+from tank import *
+from level_types import *
 
 class Level:
 
@@ -30,17 +22,18 @@ class Level:
         
 
     
-    def __init__(self, sizeX = DEFAULT_SIZE_X, sizeY = DEFAULT_SIZE_Y, renderer = None):
+    def __init__(self, mode, sizeX = DEFAULT_SIZE_X, sizeY = DEFAULT_SIZE_Y):
         
-        self._renderer = renderer
+        self._mode = mode
         
-        if renderer:
-            self._bush = renderer.loadTexture("pytank/data/bush.png")
-            self._eagle = renderer.loadTexture("pytank/data/eagle.png")
-            self._brick = renderer.loadTexture("pytank/data/brick.png")
-            self._fast = renderer.loadTexture("pytank/data/fast.png")
-            self._water = renderer.loadTexture("pytank/data/water.png")
-            self._metal = renderer.loadTexture("pytank/data/metal_brick.png")
+        self._bush = Video.Renderer.loadTexture("bush.png")
+        self._eagle = Video.Renderer.loadTexture("eagle.png")
+        self._brick = Video.Renderer.loadTexture("brick.png")
+        self._fast = Video.Renderer.loadTexture("fast.png")
+        self._water = Video.Renderer.loadTexture("water.png")
+        self._metal = Video.Renderer.loadTexture("metal_brick.png")
+        
+        self._driveSound = Mix_LoadWAV('pytank/data/drive.wav')
         
         self._sizeX = sizeX
         self._sizeY = sizeY
@@ -73,50 +66,105 @@ class Level:
         self.matrix[sizeY-1][x + 1] = BlockType.EAGLE
         self.matrix[sizeY-1][x] = BlockType.EAGLE
         
+        # Start sounds
+        
+        #Mix_Volume(GameVars.CHANNEL_DRIVE, 0)
+       
+        Mix_PlayChannel(GameVars.CHANNEL_DRIVE, self._driveSound, -1)
+        Mix_Pause(GameVars.CHANNEL_DRIVE)
+        
+    def run(self, events):
+        
+        if self._mode == LevelMode.GAME:
+            self._player1.run(events)
+        
+        self.render()
+        
     def render(self):
-          
-        renderer = self._renderer
-        # Draw frame
-
+                 
         FRAME_WIDTH = GameVars.FRAME_WIDTH
         
-        renderer.drawRect(Colors.GRAY,0,0,FRAME_WIDTH,GameVars.HEIGHT)     
-        renderer.drawRect(Colors.GRAY,GameVars.WIDTH - FRAME_WIDTH - 16,0,FRAME_WIDTH * 2,GameVars.HEIGHT)     
-        renderer.drawRect(Colors.GRAY,0,0,GameVars.WIDTH,FRAME_WIDTH)     
-        renderer.drawRect(Colors.GRAY,0,GameVars.HEIGHT - FRAME_WIDTH,GameVars.WIDTH,FRAME_WIDTH)
+        # Draw background
 
-        # Draw level items
+        Video.Renderer.clear(Colors.BLACK)
+
+        # Draw level items that should be drew before tanks
 
         level = self.matrix
         currentY = FRAME_WIDTH
         for y in range(0,GameVars.NUM_GRID_Y):
             currentX = FRAME_WIDTH
             for x in range(0,GameVars.NUM_GRID_X):
-                ###### Check x,y or y,x
                 item = level[y][x]
-                self._renderBlock(item, currentX, currentY) 
+                if item is BlockType.FAST:
+                    self._renderBlock(item, currentX, currentY) 
                     
                 currentX = currentX + GameVars.LEVEL_GRID_WIDTH
                      
             currentY = currentY + GameVars.LEVEL_GRID_WIDTH
+
+        
+
+        # Draw tanks
+        if self._mode == LevelMode.GAME:
+            self._player1.render()
+
+
+        # Draw level items
+
+        currentY = FRAME_WIDTH
+        for y in range(0,GameVars.NUM_GRID_Y):
+            currentX = FRAME_WIDTH
+            for x in range(0,GameVars.NUM_GRID_X):
+                item = level[y][x]
+                if item is not BlockType.FAST:
+                    self._renderBlock(item, currentX, currentY) 
+                    
+                currentX = currentX + GameVars.LEVEL_GRID_WIDTH
+                     
+            currentY = currentY + GameVars.LEVEL_GRID_WIDTH
+            
+                
+        self._renderGrid()        
+        
+        # Draw frame
+
+        
+        
+        Video.Renderer.drawRect(Colors.GRAY,0,0,FRAME_WIDTH,GameVars.HEIGHT)     
+        Video.Renderer.drawRect(Colors.GRAY,GameVars.WIDTH - FRAME_WIDTH - 16,0,FRAME_WIDTH * 2,GameVars.HEIGHT)     
+        Video.Renderer.drawRect(Colors.GRAY,0,0,GameVars.WIDTH,FRAME_WIDTH)     
+        Video.Renderer.drawRect(Colors.GRAY,0,GameVars.HEIGHT - FRAME_WIDTH,GameVars.WIDTH,FRAME_WIDTH)
+            
     
     def _renderBlock(self, item, x, y):
-        
-        renderer = self._renderer
-        
+    
         if item == BlockType.WATER:
-            renderer.render(self._water, x, y)
+            Video.Renderer.render(self._water, x, y)
         elif item == BlockType.FAST:
-            renderer.render(self._fast, x, y)
+            Video.Renderer.render(self._fast, x, y)
         elif item == BlockType.BUSH:
-            renderer.render(self._bush, x, y)
+            Video.Renderer.render(self._bush, x, y)
         elif item == BlockType.BRICK:
-            renderer.render(self._brick, x, y)
+            Video.Renderer.render(self._brick, x, y)
         elif item == BlockType.METAL:
-            renderer.render(self._metal, x, y)
+            Video.Renderer.render(self._metal, x, y)
         elif item == BlockType.EAGLE_RENDER:
-            renderer.render(self._eagle, x, y) 
+            Video.Renderer.render(self._eagle, x, y) 
             
+    def _renderGrid(self):
+        
+        x = 0
+        y = 0
+        # Draw horizontal lines
+        for y in xrange(GameVars.FRAME_WIDTH,GameVars.HEIGHT - GameVars.FRAME_WIDTH, GameVars.FRAME_WIDTH):
+            Video.Renderer.drawRect(Colors.WHITE,x,y,GameVars.WIDTH,1)     
+            
+        # Draw vert lines
+        y = 0
+        for x in xrange(GameVars.FRAME_WIDTH,GameVars.HEIGHT - GameVars.FRAME_WIDTH, GameVars.FRAME_WIDTH):
+            Video.Renderer.drawRect(Colors.WHITE,x,y,1,GameVars.HEIGHT)     
+        
     # Takes EditorElement
     def getBlockMatrix(self, element):
         table = []
@@ -225,3 +273,6 @@ class Level:
                         self.matrix[y][x] = value
                         x = x + 1
                 y = y + 1
+                
+        self._player1 = Tank(TankType.PLAYER_1, self.matrix)
+                

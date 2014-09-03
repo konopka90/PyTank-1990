@@ -3,7 +3,8 @@ import sdl2
 import sdl2.ext
 import sdl2.sdlimage
 import sdl2.sdlmixer
-from pytank.gameVars import *
+import wx
+from pytank.gamevars import *
 from pytank.game import *
 
 
@@ -11,13 +12,15 @@ from pytank.game import *
 
 def run():
     
+    app = wx.App(False)
+    
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     sdl2.sdlimage.IMG_Init(IMG_INIT_PNG);
     if Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1:
          print(Mix_GetError())
          return -1
          
-    Mix_AllocateChannels(0)
+    Mix_AllocateChannels(10)
     
     window = sdl2.ext.Window(GameVars.TITLE, size=(GameVars.WIDTH, GameVars.HEIGHT), flags=sdl2.SDL_WINDOW_RESIZABLE)# | sdl2.SDL_WINDOW_FULLSCREEN) # <-- doesnt work properly :/ 
     window.show()

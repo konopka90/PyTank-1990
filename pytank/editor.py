@@ -3,10 +3,11 @@ from video import *
 from colors import *
 from sdl2.sdlimage import *
 from sdl2 import *
-from gameVars import *
+from gamevars import *
 from level import *
 from editor_element import *
 from show_levels import *
+from tank import *
 
 import myInput
 import os, os.path
@@ -26,13 +27,12 @@ class Editor:
     STATE_LOAD = 7
     
         
-    def __init__(self,renderer):
-        self._renderer = renderer
+    def __init__(self):
         
         # Assets        
         
-        self._cursor = renderer.loadTexture("pytank/data/cursor.png")
-        self._menuSelector =  renderer.loadTexture('pytank/data/menu_selector.bmp')  
+        self._cursor = Video.Renderer.loadTexture("cursor.png")
+        self._menuSelector =  Video.Renderer.loadTexture('menu_selector.bmp')  
 
         
         # Variables        
@@ -53,12 +53,16 @@ class Editor:
         self._menuAction = 0
         self._currentElement = EditorElement.EMPTY
         
-        self._createNewLevel()
+        self._level = Level(LevelMode.EDIT, GameVars.NUM_GRID_X, GameVars.NUM_GRID_Y)
+        
+        self.tank = Tank(TankType.PLAYER_1, self._level)
+        
         
         
     def run(self, events):
     
-        renderer = self._renderer
+        self.tank.run(events)
+        renderer = Video.Renderer
         renderer.clear()
         
         if self._state == self.STATE_SELECT_ACTION:
@@ -128,12 +132,7 @@ class Editor:
             
         elif self._state == self.STATE_LOAD:
             self._handleLoadLevel(events)
-            
-
-    def _createNewLevel(self):
-        self._level = Level(GameVars.NUM_GRID_X, GameVars.NUM_GRID_Y, self._renderer)
-
-
+        
 
     def _handleStateEdit(self, events):
 
@@ -143,7 +142,7 @@ class Editor:
 
             x = GameVars.WIDTH - GameVars.FRAME_WIDTH
             y = 0                
-            self._renderer.renderText("Current block:", Colors.BLACK_ENUM, 120, 4)
+            Video.Renderer.renderText("Current block:", Colors.BLACK_ENUM, 120, 4)
             table = self._level.getBlockMatrix(self._currentElement)   
             self._level._renderBlock(table[0][0], x, y)
             self._level._renderBlock(table[0][1], x + GameVars.LEVEL_GRID_WIDTH, y)
@@ -157,7 +156,7 @@ class Editor:
 
         y = GameVars.HEIGHT / 2 - 8
         
-        renderer = self._renderer
+        renderer = Video.Renderer
         renderer.clear(Colors.GRAY)
         renderer.renderText("Save as", Colors.BLACK_ENUM, 50, y)
         
@@ -207,7 +206,7 @@ class Editor:
         
     def _handleLoadLevel(self, events):
         
-        renderer = self._renderer
+        renderer = Video.Renderer
         result = self._showLevels.run(events, renderer)
         
         if result.OK:
@@ -262,7 +261,7 @@ class Editor:
             self._drawCursor = not self._drawCursor
             
         if self._drawCursor:
-            self._renderer.render(self._cursor, GameVars.FRAME_WIDTH + self._cursorX*GameVars.CURSOR_GRID_WIDTH, GameVars.FRAME_WIDTH + self._cursorY*GameVars.CURSOR_GRID_WIDTH)    
+            Video.Renderer.render(self._cursor, GameVars.FRAME_WIDTH + self._cursorX*GameVars.CURSOR_GRID_WIDTH, GameVars.FRAME_WIDTH + self._cursorY*GameVars.CURSOR_GRID_WIDTH)    
         
         self._cursorCounter = self._cursorCounter + 1
 

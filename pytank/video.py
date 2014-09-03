@@ -1,9 +1,10 @@
 from sdl2 import *
 from sdl2.ext import *
 from sdl2.sdlimage import *
-from gameVars import *
+from gamevars import *
 from ctypes import c_long, pointer
 from colors import *
+import os.path
 
 class Video:
     def __init__(self, window, w, h):
@@ -14,12 +15,14 @@ class Video:
         
         # Assets        
         
-        self._blackFont = self.loadTexture("pytank/data/font.png")
-        self._whiteFont = self.loadTexture("pytank/data/font_white.png")
-        self._blackDigits = self.loadTexture("pytank/data/digits.png")
-        self._whiteDigits = self.loadTexture("pytank/data/digits_white.png")
-        self._digits = self.loadTexture("pytank/data/digits.png")
+        self._blackFont = self.loadTexture("font.png")
+        self._whiteFont = self.loadTexture("font_white.png")
+        self._blackDigits = self.loadTexture("digits.png")
+        self._whiteDigits = self.loadTexture("digits_white.png")
+        self._digits = self.loadTexture("digits.png")
 
+        self._w = pointer(c_long(0))
+        self._h = pointer(c_long(0))
         
         
     def renderStart(self):
@@ -54,14 +57,12 @@ class Video:
     
         # Setup
     
-        _w = pointer(c_long(0))
-        _h = pointer(c_long(0))
         dst = SDL_Rect(x, y)
         
-        SDL_QueryTexture(texture, None, None, _w, _h);
+        SDL_QueryTexture(texture, None, None, self._w, self._h);
     
-        dst.w = _w.contents.value
-        dst.h = _h.contents.value
+        dst.w = self._w.contents.value
+        dst.h = self._h.contents.value
         
         if src.x != -1:
             dst.w = src.w
@@ -149,9 +150,17 @@ class Video:
         pass
         
     def loadTexture(self, path):
-        surface = IMG_Load(path)
+
+        directory = 'pytank/data/'        
+        
+        isFile = os.path.isfile(directory + path)
+        if not isFile:
+            print "File \"" + directory + path + "\" does not exist"
+            
+        surface = IMG_Load(directory + path)
         texture = SDL_CreateTextureFromSurface(self._renderer, surface);
         return texture
-
-
+        
+        
+Renderer = None
         

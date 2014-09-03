@@ -4,9 +4,12 @@ from sdl2.sdlmixer import *
 from video import *
 from editor import *
 from colors import *
-import gameVars
+import gamevars
 import myInput
 from show_levels import *
+
+
+
 
 class GameState(object):
     
@@ -21,7 +24,6 @@ class GameState(object):
     STAGE_SCORE = 9
     PAUSE = 10
     EDITOR = 11
-    
 
 
 class Game:
@@ -37,6 +39,11 @@ class Game:
         self._video = Video(window, GameVars.WIDTH, GameVars.HEIGHT)
         self._showLevels = ShowLevels()        
         self._stageAnimationCounter = 0
+        
+        # Make renderer global        
+        
+        Video.Renderer = self._video
+        
         # Game stuff
         
         self._gameState = GameState.MENU_ANIMATION_START
@@ -44,31 +51,37 @@ class Game:
         self._menuSelectorArray = [ 0 , 13 ]
         self._menuSelectorHeight = [ 0 , 16 , 32]
         self._menuAction = 0
-        self._editor = Editor(self._video)
-        self._level = Level()
+        self._editor = Editor()
+        self._level = Level(LevelMode.GAME)
         
         # Assets
         self._soundIntro = Mix_LoadMUS("pytank/data/intro.ogg")
         
+
+
         
     def run(self, events):
+
+        # Used for handling keyboard during the game
+        # If u know better solution - change it
+        myInput.getKeyboardState()
         
-        self._video.renderStart()
+        Video.Renderer.renderStart()
         
         # Game logic
         
         # Menu animation
         
         if(self._gameState == GameState.MENU_ANIMATION_START):
-            self._menuTexture = self._video.loadTexture('pytank/data/menu.bmp')
-            self._menuSelector = self._video.loadTexture('pytank/data/menu_selector.bmp')
+            self._menuTexture = Video.Renderer.loadTexture('menu.bmp')
+            self._menuSelector = Video.Renderer.loadTexture('menu_selector.bmp')
             self._menuAnimationCounter = GameVars.HEIGHT
             self._gameState = GameState.MENU_ANIMATION
             
   
         if(self._gameState == GameState.MENU_ANIMATION):
         
-            self._video.render(self._menuTexture, 0, self._menuAnimationCounter)
+            Video.Renderer.render(self._menuTexture, 0, self._menuAnimationCounter)
             self._menuAnimationCounter = self._menuAnimationCounter - 1
             self._menuAction = 0
 
@@ -87,9 +100,9 @@ class Game:
         
             if(self._gameState == GameState.MENU):
                 self._menuSelectorCounter = self._menuSelectorCounter + 1
-                self._video.render(self._menuTexture,0,0)
-                self._video.renderText("00",Colors.WHITE_ENUM,60,24)
-                self._video.renderText("20000",Colors.WHITE_ENUM,130,24)
+                Video.Renderer.render(self._menuTexture,0,0)
+                Video.Renderer.renderText("00",Colors.WHITE_ENUM,60,24)        
+                Video.Renderer.renderText("20000",Colors.WHITE_ENUM,130,24)
                 
                 if myInput.isKeyDown(events, GameVars.BUTTON_SELECT):
                     self._menuAction = (self._menuAction + 1) % 3
@@ -105,7 +118,7 @@ class Game:
                 y = self._menuSelectorHeight[self._menuAction]
                 
                 
-                self._video.render(self._menuSelector,65,133 + y,SDL_Rect(x,0,13,13))
+                Video.Renderer.render(self._menuSelector,65,133 + y,SDL_Rect(x,0,13,13))
             
             # Show Editor
             else:
@@ -119,9 +132,9 @@ class Game:
         # Show 'select stage' animation
         
         if(self._gameState == GameState.STAGE_SELECT_ANIMATION):
-            self._video.clear()
-            self._video.drawRect(Color(128,128,128), 0,0,GameVars.WIDTH,self._selectStageAnimationCounter)
-            self._video.drawRect(Color(128,128,128), 0,GameVars.HEIGHT - self._selectStageAnimationCounter,GameVars.WIDTH,self._selectStageAnimationCounter)
+            Video.Renderer.clear()
+            Video.Renderer.drawRect(Color(128,128,128), 0,0,GameVars.WIDTH,self._selectStageAnimationCounter)
+            Video.Renderer.drawRect(Color(128,128,128), 0,GameVars.HEIGHT - self._selectStageAnimationCounter,GameVars.WIDTH,self._selectStageAnimationCounter)
             self._selectStageAnimationCounter = self._selectStageAnimationCounter + 3
 
             if self._selectStageAnimationCounter > GameVars.WIDTH / 2:
@@ -129,7 +142,7 @@ class Game:
          
         # Show 'stage selection'         
         elif(self._gameState == GameState.STAGE_SELECT):
-            self._video.clear(Colors.BLACK)
+            Video.Renderer.clear(Colors.BLACK)
             result = self._showLevels.run(events, self._video)
             
             if result.OK:
@@ -147,14 +160,16 @@ class Game:
             else:
                 self._selectStageAnimationCounter = self._selectStageAnimationCounter + 1
             
+        # Start game
         if(self._gameState == GameState.STAGE_START):
             self._gameState = GameState.STAGE
         
         if(self._gameState == GameState.STAGE):
-            pass
+            self._level.run(events)
+            
             
          
-        self._video.renderStop()
+        Video.Renderer.renderStop()
         
         SDL_Delay(GameVars.DELAY)
 				
